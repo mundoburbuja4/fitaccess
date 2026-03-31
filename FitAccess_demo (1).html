@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitAccess — Plataforma de Guías de Entrenamiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D0A07;
+  --bg2: #141008;
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --gold-dim: #8B6F2E;
+  --cream: #F0E6CC;
+  --green: #1A3A2A;
+  --green2: #0F2018;
+  --red: #7A2020;
+  --text: #C8B89A;
+  --border: rgba(201,168,76,0.2);
+  --shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--cream);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRAIN OVERLAY */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:1000;
+  opacity:0.4;
+}
+
+/* PAGES */
+.page { display:none; min-height:100vh; }
+.page.active { display:block; }
+
+/* ─── NAV ─── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background: rgba(13,10,7,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 64px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  cursor:pointer;
+}
+.nav-logo span { color: var(--cream); font-weight:300; }
+.nav-links { display:flex; gap:8px; align-items:center; }
+.nav-btn {
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor:pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.nav-btn.outline {
+  background:transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.nav-btn.outline:hover { border-color: var(--gold); color: var(--gold); }
+.nav-btn.gold {
+  background: var(--gold);
+  color: var(--bg);
+  font-weight:500;
+}
+.nav-btn.gold:hover { background: var(--gold-light); }
+.nav-user {
+  display:flex; align-items:center; gap:12px;
+}
+.avatar {
+  width:36px; height:36px; border-radius:50%;
+  background: var(--green);
+  border: 1px solid var(--gold);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.85rem; color:var(--gold); font-weight:600;
+  cursor:pointer;
+}
+
+/* ─── LANDING ─── */
+.hero {
+  min-height: 100vh;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  text-align:center;
+  padding: 120px 40px 80px;
+  position:relative;
+  overflow:hidden;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,168,76,0.07) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 40% at 20% 80%, rgba(26,58,42,0.3) 0%, transparent 60%);
+}
+.hero-badge {
+  display:inline-block;
+  padding: 6px 18px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform:uppercase;
+  margin-bottom: 28px;
+  animation: fadeUp 0.8s ease both;
+}
+.hero h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--cream);
+  margin-bottom: 12px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+.hero h1 em {
+  font-style:italic;
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--gold);
+}
+.hero p {
+  font-size: 1.15rem;
+  color: var(--text);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  font-weight:300;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+.hero-btns {
+  display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+.btn-primary {
+  padding: 16px 40px;
+  background: var(--gold);
+  color: var(--bg);
+  border:none; border-radius:4px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.95rem; font-weight:600;
+  cursor:pointer;
+  transition: all 0.25s;
+  letter-spacing:0.03em;
+}
+.btn-primary:hover { background:var(--gold-light); transform:translateY(-2px); box-shadow:0 8px 30px rgba(201,168,76,0.3); }
+.btn-secondary {
+  padding: 16px 40px;
+  background:transparent;
+  color: var(--cream);
+  border: 1px solid var(--border);
+  border-radius:4px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.95rem;
+  cursor:pointer;
+  transition: all 0.25s;
+}
+.btn-secondary:hover { border-color:var(--gold); color:var(--gold); }
+
+/* Stats */
+.stats {
+  display:flex; gap:60px; justify-content:center; flex-wrap:wrap;
+  padding: 60px 40px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 0 40px;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+.stat { text-align:center; }
+.stat-num {
+  font-family:'Cinzel',serif;
+  font-size:2.5rem;
+  color:var(--gold);
+  display:block;
+}
+.stat-label { font-size:0.8rem; color:var(--text); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px; }
+
+/* Features */
+.features {
+  padding: 100px 40px;
+  max-width:1100px; margin:0 auto;
+}
+.section-title {
+  font-family:'Cinzel',serif;
+  font-size:1.8rem;
+  color:var(--cream);
+  text-align:center;
+  margin-bottom:8px;
+}
+.section-sub {
+  text-align:center;
+  color:var(--text);
+  margin-bottom:60px;
+  font-weight:300;
+}
+.features-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+  gap:24px;
+}
+.feature-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius:8px;
+  padding:32px 28px;
+  transition: all 0.3s;
+}
+.feature-card:hover { border-color:var(--gold); transform:translateY(-4px); }
+.feature-icon { font-size:2rem; margin-bottom:16px; }
+.feature-card h3 { font-family:'Cinzel',serif; font-size:1rem; color:var(--gold); margin-bottom:10px; letter-spacing:0.05em; }
+.feature-card p { color:var(--text); font-size:0.9rem; line-height:1.6; font-weight:300; }
+
+/* Pricing */
+.pricing {
+  padding: 100px 40px;
+  max-width:900px; margin:0 auto;
+}
+.pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:24px; margin-top:48px; }
+.plan-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:36px 28px;
+  text-align:center;
+  transition:all 0.3s;
+  position:relative;
+}
+.plan-card.featured {
+  border-color:var(--gold);
+  background: linear-gradient(135deg, var(--green2) 0%, var(--bg2) 100%);
+}
+.plan-badge {
+  position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+  background:var(--gold); color:var(--bg);
+  padding:4px 16px; border-radius:12px;
+  font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+}
+.plan-name { font-family:'Cinzel',serif; font-size:1rem; color:var(--text); margin-bottom:16px; letter-spacing:0.1em; }
+.plan-price { font-family:'Cormorant Garamond',serif; font-size:3rem; color:var(--gold); line-height:1; }
+.plan-price span { font-size:1rem; color:var(--text); }
+.plan-period { font-size:0.8rem; color:var(--text); margin-bottom:24px; }
+.plan-features { list-style:none; margin-bottom:28px; }
+.plan-features li { padding:8px 0; border-bottom:1px solid var(--border); font-size:0.85rem; color:var(--text); }
+.plan-features li:last-child { border:none; }
+.plan-features li::before { content:'✓ '; color:var(--gold); }
+
+/* ─── AUTH ─── */
+.auth-page {
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding: 100px 20px 40px;
+  background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(201,168,76,0.05) 0%, transparent 70%);
+}
+.auth-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:48px 44px;
+  width:100%; max-width:420px;
+  box-shadow: var(--shadow);
+}
+.auth-logo {
+  font-family:'Cinzel',serif;
+  font-size:1.5rem;
+  color:var(--gold);
+  text-align:center;
+  margin-bottom:8px;
+}
+.auth-subtitle { text-align:center; color:var(--text); font-size:0.85rem; margin-bottom:36px; font-weight:300; }
+.form-group { margin-bottom:20px; }
+.form-label { display:block; font-size:0.78rem; color:var(--text); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px; }
+.form-input {
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:12px 16px;
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.95rem;
+  transition:all 0.2s;
+  outline:none;
+}
+.form-input:focus { border-color:var(--gold); background:rgba(201,168,76,0.05); }
+.form-input::placeholder { color:rgba(200,184,154,0.3); }
+.btn-full {
+  width:100%;
+  padding:14px;
+  background:var(--gold);
+  color:var(--bg);
+  border:none; border-radius:6px;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.95rem; font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-top:8px;
+}
+.btn-full:hover { background:var(--gold-light); }
+.auth-switch { text-align:center; margin-top:24px; font-size:0.85rem; color:var(--text); }
+.auth-switch a { color:var(--gold); cursor:pointer; text-decoration:none; }
+.auth-switch a:hover { color:var(--gold-light); }
+
+/* ─── DASHBOARD ─── */
+.dashboard {
+  padding: 88px 48px 60px;
+  max-width:1200px; margin:0 auto;
+}
+.dash-header {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:48px; flex-wrap:wrap; gap:20px;
+}
+.dash-greeting { font-family:'Cormorant Garamond',serif; font-size:0.9rem; color:var(--gold); letter-spacing:0.1em; margin-bottom:6px; }
+.dash-name { font-family:'Cinzel',serif; font-size:1.8rem; color:var(--cream); }
+.membership-badge {
+  display:flex; align-items:center; gap:10px;
+  background:var(--green2);
+  border:1px solid var(--gold-dim);
+  border-radius:8px;
+  padding:14px 20px;
+}
+.membership-dot { width:8px; height:8px; border-radius:50%; background:var(--gold); animation:pulse 2s infinite; }
+.membership-info { font-size:0.8rem; }
+.membership-plan { color:var(--gold); font-weight:600; }
+.membership-expires { color:var(--text); }
+
+/* Guide cards */
+.guides-section { margin-bottom:48px; }
+.guides-title {
+  font-family:'Cinzel',serif;
+  font-size:1rem;
+  color:var(--text);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.guides-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
+  gap:20px;
+}
+.guide-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  transition:all 0.3s;
+  cursor:pointer;
+  position:relative;
+}
+.guide-card:hover { border-color:var(--gold); transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
+.guide-card.locked { opacity:0.6; cursor:default; }
+.guide-card.locked:hover { transform:none; border-color:var(--border); box-shadow:none; }
+.guide-thumb {
+  height:140px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem;
+  position:relative;
+}
+.guide-thumb.green { background: linear-gradient(135deg, var(--green2), var(--green)); }
+.guide-thumb.dark { background: linear-gradient(135deg, #1a0a1a, #2d1420); }
+.guide-thumb.blue { background: linear-gradient(135deg, #0a1a2a, #142040); }
+.lock-overlay {
+  position:absolute; inset:0;
+  background:rgba(13,10,7,0.7);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem;
+  backdrop-filter:blur(2px);
+}
+.guide-body { padding:20px; }
+.guide-tag {
+  font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:8px;
+}
+.guide-title { font-family:'Cinzel',serif; font-size:0.95rem; color:var(--cream); margin-bottom:6px; }
+.guide-meta { font-size:0.78rem; color:var(--text); }
+.guide-actions { padding:0 20px 20px; display:flex; gap:8px; }
+.btn-read {
+  flex:1; padding:10px;
+  background:var(--gold); color:var(--bg);
+  border:none; border-radius:5px;
+  font-size:0.82rem; font-weight:600;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-read:hover { background:var(--gold-light); }
+.btn-unlock {
+  flex:1; padding:10px;
+  background:transparent; color:var(--text);
+  border:1px solid var(--border);
+  border-radius:5px;
+  font-size:0.82rem;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-unlock:hover { border-color:var(--gold); color:var(--gold); }
+
+/* Progress */
+.progress-section {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:28px;
+  margin-bottom:48px;
+}
+.progress-title { font-family:'Cinzel',serif; font-size:0.9rem; color:var(--gold); margin-bottom:20px; letter-spacing:0.08em; }
+.progress-item { margin-bottom:16px; }
+.progress-label { display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text); margin-bottom:6px; }
+.progress-bar { height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius:3px; transition:width 1s ease; }
+
+/* ─── PDF VIEWER ─── */
+.viewer-page {
+  padding-top:64px;
+  min-height:100vh;
+  background:var(--bg);
+}
+.viewer-header {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:20px 48px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+}
+.viewer-title { font-family:'Cinzel',serif; font-size:1rem; color:var(--cream); }
+.viewer-subtitle { font-size:0.8rem; color:var(--text); margin-top:3px; }
+.viewer-btns { display:flex; gap:8px; }
+.viewer-btn {
+  padding:8px 18px;
+  border-radius:5px;
+  font-size:0.82rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+}
+.viewer-btn:hover { border-color:var(--gold); color:var(--gold); }
+.viewer-btn.back { display:flex; align-items:center; gap:6px; }
+
+.pdf-container {
+  max-width:860px; margin:0 auto;
+  padding:40px 24px 80px;
+}
+.pdf-page-sim {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-bottom:24px;
+  overflow:hidden;
+  position:relative;
+  min-height:500px;
+}
+.watermark {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; z-index:10;
+  opacity:0.07;
+  font-family:'Cinzel',serif;
+  font-size:3rem;
+  color:var(--gold);
+  transform:rotate(-30deg);
+  white-space:nowrap;
+  letter-spacing:0.2em;
+}
+.pdf-content { padding:48px; position:relative; }
+.pdf-header-sim {
+  background:var(--green2);
+  margin:-48px -48px 40px;
+  padding:32px 48px;
+  border-bottom:1px solid var(--border);
+}
+.pdf-header-sim h2 { font-family:'Cinzel',serif; font-size:1.4rem; color:var(--gold); margin-bottom:4px; }
+.pdf-header-sim p { color:var(--text); font-size:0.85rem; }
+.pdf-body { color:var(--text); line-height:1.8; font-size:0.9rem; font-weight:300; }
+.pdf-body h3 { font-family:'Cinzel',serif; color:var(--cream); margin:24px 0 10px; font-size:1rem; }
+.pdf-exercise {
+  background:rgba(201,168,76,0.04);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:20px;
+  margin:16px 0;
+}
+.pdf-exercise-name { font-family:'Cinzel',serif; color:var(--gold); font-size:0.9rem; margin-bottom:6px; }
+.pdf-exercise-meta { font-size:0.8rem; color:var(--gold-dim); margin-bottom:8px; }
+
+/* ─── ADMIN ─── */
+.admin-page { padding:88px 48px 60px; max-width:1100px; margin:0 auto; }
+.admin-header { margin-bottom:40px; }
+.admin-title { font-family:'Cinzel',serif; font-size:1.8rem; color:var(--cream); margin-bottom:4px; }
+.admin-sub { color:var(--text); font-size:0.85rem; }
+.admin-tabs { display:flex; gap:4px; margin-bottom:32px; border-bottom:1px solid var(--border); }
+.admin-tab {
+  padding:10px 24px;
+  background:transparent;
+  border:none;
+  border-bottom:2px solid transparent;
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.85rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-bottom:-1px;
+}
+.admin-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+.admin-tab:hover { color:var(--cream); }
+.admin-panel { display:none; }
+.admin-panel.active { display:block; }
+
+/* Stats cards */
+.stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:32px; }
+.stat-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:24px 20px;
+}
+.stat-card-num { font-family:'Cinzel',serif; font-size:2rem; color:var(--gold); }
+.stat-card-label { font-size:0.75rem; color:var(--text); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+.stat-card-change { font-size:0.75rem; color:#4CAF50; margin-top:6px; }
+
+/* Table */
+.admin-table { width:100%; border-collapse:collapse; }
+.admin-table th {
+  text-align:left; padding:12px 16px;
+  font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text); border-bottom:1px solid var(--border);
+}
+.admin-table td {
+  padding:14px 16px;
+  font-size:0.85rem; color:var(--text);
+  border-bottom:1px solid rgba(201,168,76,0.06);
+}
+.admin-table tr:hover td { background:rgba(201,168,76,0.03); }
+.badge {
+  display:inline-block;
+  padding:3px 10px; border-radius:12px;
+  font-size:0.7rem; font-weight:600; letter-spacing:0.05em;
+}
+.badge.active { background:rgba(76,175,80,0.15); color:#4CAF50; border:1px solid rgba(76,175,80,0.3); }
+.badge.inactive { background:rgba(122,32,32,0.2); color:#EF5350; border:1px solid rgba(239,83,80,0.3); }
+.badge.pro { background:rgba(201,168,76,0.15); color:var(--gold); border:1px solid var(--border); }
+.badge.basic { background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border); }
+
+/* Upload zone */
+.upload-zone {
+  border:2px dashed var(--border);
+  border-radius:10px;
+  padding:60px 40px;
+  text-align:center;
+  transition:all 0.2s;
+  cursor:pointer;
+  margin-bottom:24px;
+}
+.upload-zone:hover { border-color:var(--gold); background:rgba(201,168,76,0.03); }
+.upload-icon { font-size:3rem; margin-bottom:16px; }
+.upload-text { color:var(--text); font-size:0.9rem; }
+.upload-text strong { color:var(--gold); }
+
+/* Form row */
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.form-select {
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:12px 16px;
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;
+  outline:none;
+  cursor:pointer;
+}
+.form-select option { background:var(--bg2); }
+
+/* Toast */
+.toast {
+  position:fixed; bottom:32px; right:32px; z-index:9999;
+  background:var(--green2);
+  border:1px solid var(--gold-dim);
+  border-radius:8px;
+  padding:16px 24px;
+  color:var(--cream);
+  font-size:0.88rem;
+  transform:translateY(100px);
+  opacity:0;
+  transition:all 0.3s;
+  max-width:320px;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* Modal */
+.modal-overlay {
+  position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(4px);
+  display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:40px;
+  max-width:440px; width:100%;
+  box-shadow:var(--shadow);
+}
+.modal h3 { font-family:'Cinzel',serif; color:var(--gold); margin-bottom:16px; }
+.modal p { color:var(--text); font-size:0.9rem; line-height:1.6; margin-bottom:24px; }
+.modal-btns { display:flex; gap:12px; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(24px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.4; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:3px; }
+
+/* Footer */
+footer {
+  text-align:center;
+  padding:48px;
+  border-top:1px solid var(--border);
+  color:var(--text);
+  font-size:0.8rem;
+}
+footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1.1rem; margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="nav-logo" onclick="showPage('landing')">FitAccess <span>Pro</span></div>
+  <div class="nav-links" id="navGuest">
+    <button class="nav-btn outline" onclick="showPage('login')">Iniciar sesión</button>
+    <button class="nav-btn gold" onclick="showPage('register')">Registrarse</button>
+  </div>
+  <div class="nav-links" id="navUser" style="display:none">
+    <button class="nav-btn outline" onclick="showPage('admin')">⚙ Admin</button>
+    <div class="avatar" onclick="showPage('dashboard')" title="Mi perfil">MC</div>
+  </div>
+</nav>
+
+<!-- ═══════════════ LANDING ═══════════════ -->
+<div class="page active" id="page-landing">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-badge">Plataforma de Entrenamiento Premium</div>
+    <h1>Tu gym, <em>tus guías,</em><br>un solo lugar</h1>
+    <p>Guías de entrenamiento personalizadas, basadas en ciencia, accesibles con tu membresía activa. Protegidas, organizadas y siempre disponibles.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="showPage('register')">Comenzar ahora</button>
+      <button class="btn-secondary" onclick="showPage('login')">Ya tengo cuenta</button>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-num">48</span><div class="stat-label">Páginas por guía</div></div>
+    <div class="stat"><span class="stat-num">5</span><div class="stat-label">Días de rutina</div></div>
+    <div class="stat"><span class="stat-num">100%</span><div class="stat-label">Personalizado</div></div>
+    <div class="stat"><span class="stat-num">🔒</span><div class="stat-label">Contenido protegido</div></div>
+  </div>
+
+  <section class="features">
+    <h2 class="section-title">Todo lo que necesita tu gym</h2>
+    <p class="section-sub">Una plataforma completa para gestionar y distribuir contenido de entrenamiento</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Guías Personalizadas</h3>
+        <p>Cada cliente recibe su guía adaptada a su cuerpo, objetivos y limitaciones físicas. Nada genérico.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Acceso por Membresía</h3>
+        <p>El contenido se desbloquea con membresía activa y se bloquea automáticamente al vencer. Sin complicaciones.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💧</div>
+        <h3>Marca de Agua Dinámica</h3>
+        <p>Cada PDF muestra el nombre del usuario. Si alguien comparte capturas, queda expuesto automáticamente.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Panel de Administración</h3>
+        <p>Gestiona usuarios, sube guías, controla membresías y visualiza métricas desde un solo lugar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Acceso desde Cualquier Dispositivo</h3>
+        <p>Tus clientes ven sus guías desde el celular, tablet o computador. Sin apps que descargar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Pagos Automáticos</h3>
+        <p>Integración con pasarelas de pago colombianas. El sistema gestiona renovaciones y vencimientos solo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing">
+    <h2 class="section-title">Planes para tu gym</h2>
+    <p class="section-sub">Elige el plan que mejor se adapte al tamaño de tu gimnasio</p>
+    <div class="pricing-grid">
+      <div class="plan-card">
+        <div class="plan-name">BÁSICO</div>
+        <div class="plan-price">$89<span>k</span></div>
+        <div class="plan-period">COP / mes por cliente</div>
+        <ul class="plan-features">
+          <li>Hasta 3 guías activas</li>
+          <li>Acceso web protegido</li>
+          <li>Marca de agua básica</li>
+          <li>Soporte por correo</li>
+        </ul>
+        <button class="btn-full" onclick="showPage('register')">Comenzar</button>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-badge">MÁS POPULAR</div>
+        <div class="plan-name">PRO</div>
+        <div class="plan-price">$149<span>k</span></div>
+        <div class="plan-period">COP / mes por cliente</div>
+        <ul class="plan-features">
+          <li>Guías ilimitadas</li>
+          <li>Marca de agua dinámica</li>
+          <li>Panel admin completo</li>
+          <li>Seguimiento de progreso</li>
+          <li>Soporte prioritario</li>
+        </ul>
+        <button class="btn-full" onclick="showPage('register')">Comenzar</button>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name">GYM</div>
+        <div class="plan-price">$890<span>k</span></div>
+        <div class="plan-period">COP / mes · hasta 50 clientes</div>
+        <ul class="plan-features">
+          <li>Todo lo del plan Pro</li>
+          <li>Branding personalizado</li>
+          <li>Dominio propio</li>
+          <li>API de integración</li>
+          <li>Soporte dedicado</li>
+        </ul>
+        <button class="btn-full" onclick="showPage('register')">Contactar</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">FitAccess Pro</div>
+    <p>Plataforma de guías de entrenamiento personalizadas · Demo © 2025</p>
+  </footer>
+</div>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div class="page" id="page-login">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">FitAccess</div>
+      <div class="auth-subtitle">Bienvenida de nuevo</div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-input" type="email" placeholder="tu@correo.com" id="loginEmail">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" placeholder="••••••••" id="loginPass">
+      </div>
+      <button class="btn-full" onclick="doLogin()">Iniciar sesión</button>
+      <div class="auth-switch">
+        ¿No tienes cuenta? <a onclick="showPage('register')">Regístrate aquí</a>
+      </div>
+      <div class="auth-switch" style="margin-top:8px">
+        <a onclick="showPage('landing')">← Volver al inicio</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ REGISTER ═══════════════ -->
+<div class="page" id="page-register">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">FitAccess</div>
+      <div class="auth-subtitle">Crea tu cuenta · Es gratis comenzar</div>
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input class="form-input" type="text" placeholder="Tu nombre" id="regName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-input" type="email" placeholder="tu@correo.com" id="regEmail">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" placeholder="Mínimo 8 caracteres" id="regPass">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gimnasio</label>
+        <input class="form-input" type="text" placeholder="Nombre de tu gym" id="regGym">
+      </div>
+      <button class="btn-full" onclick="doRegister()">Crear cuenta</button>
+      <div class="auth-switch">
+        ¿Ya tienes cuenta? <a onclick="showPage('login')">Inicia sesión</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DASHBOARD ═══════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div>
+        <div class="dash-greeting">BIENVENIDA DE NUEVO</div>
+        <div class="dash-name" id="dashName">María Camila</div>
+      </div>
+      <div class="membership-badge">
+        <div class="membership-dot"></div>
+        <div class="membership-info">
+          <div class="membership-plan">Plan PRO · Activo</div>
+          <div class="membership-expires">Vence: 30 Jun 2025</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-section">
+      <div class="progress-title">🎯 TU PROGRESO ESTA SEMANA</div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Días completados</span><span>3/5</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Guías leídas</span><span>4/7</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:57%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Calentamientos completados</span><span>3/3</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <!-- Unlocked guides -->
+    <div class="guides-section">
+      <div class="guides-title">📂 Mis Guías Desbloqueadas</div>
+      <div class="guides-grid">
+        <div class="guide-card" onclick="showViewer('calentamiento')">
+          <div class="guide-thumb green">🔥</div>
+          <div class="guide-body">
+            <div class="guide-tag">Todos los días</div>
+            <div class="guide-title">Calentamiento Científico</div>
+            <div class="guide-meta">12 páginas · Activación neuromuscular</div>
+          </div>
+          <div class="guide-actions">
+            <button class="btn-read">Ver guía</button>
+          </div>
+        </div>
+        <div class="guide-card" onclick="showViewer('dia1')">
+          <div class="guide-thumb green">💪</div>
+          <div class="guide-body">
+            <div class="guide-tag">Lunes</div>
+            <div class="guide-title">Día 1 — Tren Inferior</div>
+            <div class="guide-meta">8 páginas · Glúteos · Hipdips · Equilibrio</div>
+          </div>
+          <div class="guide-actions">
+            <button class="btn-read">Ver guía</button>
+          </div>
+        </div>
+        <div class="guide-card" onclick="showViewer('dia2')">
+          <div class="guide-thumb dark">🏋️</div>
+          <div class="guide-body">
+            <div class="guide-tag">Martes</div>
+            <div class="guide-title">Día 2 — Tren Superior A</div>
+            <div class="guide-meta">8 páginas · Espalda · Joroba · Bíceps</div>
+          </div>
+          <div class="guide-actions">
+            <button class="btn-read">Ver guía</button>
+          </div>
+        </div>
+        <div class="guide-card" onclick="showViewer('dia3')">
+          <div class="guide-thumb blue">🚴</div>
+          <div class="guide-body">
+            <div class="guide-tag">Miércoles</div>
+            <div class="guide-title">Día 3 — Cardio + Core</div>
+            <div class="guide-meta">7 páginas · Caminadora · McGill · Equilibrio</div>
+          </div>
+          <div class="guide-actions">
+            <button class="btn-read">Ver guía</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Locked guides -->
+    <div class="guides-section">
+      <div class="guides-title">🔒 Disponibles con Plan PRO+</div>
+      <div class="guides-grid">
+        <div class="guide-card locked">
+          <div class="guide-thumb green">
+            <div class="lock-overlay">🔒</div>
+            🥗
+          </div>
+          <div class="guide-body">
+            <div class="guide-tag">Nutrición</div>
+            <div class="guide-title">Guía de Alimentación</div>
+            <div class="guide-meta">Plan de macros · Recetas · Lista de mercado</div>
+          </div>
+          <div class="guide-actions">
+            <button class="btn-unlock" onclick="showModal()">Desbloquear</button>
+          </div>
+        </div>
+        <div class="guide-card locked">
+          <div class="guide-thumb dark">
+            <div class="lock-overlay">🔒</div>
+            💆
+          </div>
+          <div class="guide-body">
+            <div class="guide-tag">Recuperación</div>
+            <div class="guide-title">Guía de Descanso y Recuperación</div>
+            <div class="guide-meta">Sueño · Estiramientos · Días de descanso</div>
+          </div>
+          <div class="guide-actions">
+            <button class="btn-unlock" onclick="showModal()">Desbloquear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ PDF VIEWER ═══════════════ -->
+<div class="page" id="page-viewer">
+  <div class="viewer-page">
+    <div class="viewer-header">
+      <div>
+        <div class="viewer-title" id="viewerTitle">Calentamiento Científico</div>
+        <div class="viewer-subtitle" id="viewerSub">Activación Neuromuscular · Movilidad · Todos los días</div>
+      </div>
+      <div class="viewer-btns">
+        <button class="viewer-btn back" onclick="showPage('dashboard')">← Volver</button>
+      </div>
+    </div>
+
+    <div class="pdf-container">
+      <!-- Simulated PDF page 1 -->
+      <div class="pdf-page-sim">
+        <div class="watermark" id="wmText">María Camila · mc@gmail.com</div>
+        <div class="pdf-content">
+          <div class="pdf-header-sim">
+            <h2>GUÍA DE ENTRENAMIENTO PERSONALIZADA</h2>
+            <p>Basada en ciencia · Adaptada para tu cuerpo y objetivos</p>
+          </div>
+          <div class="pdf-body">
+            <h3>🔥 CALENTAMIENTO CIENTÍFICO — Activación + Movilidad</h3>
+            <p>Este calentamiento está diseñado con base en la investigación sobre Potenciación Post-Activación (PAP). Activar el glúteo con ejercicios de baja carga antes del entrenamiento principal aumenta el reclutamiento de fibras musculares.</p>
+
+            <div class="pdf-exercise">
+              <div class="pdf-exercise-name">01 — Movilidad de Tobillo en Pared</div>
+              <div class="pdf-exercise-meta">2 series × 10 reps por pie · Fase 2 · Movilidad articular</div>
+              <p>El tobillo rígido es el limitante #1 de la profundidad en sentadilla. Coloca el pie a 10cm de la pared y lleva la rodilla hacia ella sin despegar el talón.</p>
+            </div>
+
+            <div class="pdf-exercise">
+              <div class="pdf-exercise-name">02 — Apertura de Cadera 90/90</div>
+              <div class="pdf-exercise-meta">2 series × 30 seg por lado · Fase 2 · Movilidad articular</div>
+              <p>Libera la cápsula articular de la cadera. Cuando la cadera está bloqueada la pelvis se voltea al bajar en sentadilla, generando dolor lumbar.</p>
+            </div>
+
+            <div class="pdf-exercise">
+              <div class="pdf-exercise-name">03 — Clamshell con Banda Elástica</div>
+              <div class="pdf-exercise-meta">2 series × 15 reps por lado · Fase 3 · Activación neuromuscular</div>
+              <p>Activa el glúteo medio al 70-80% de su capacidad máxima según estudios EMG. Esencial para hipdips y estabilidad de rodilla.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page 2 -->
+      <div class="pdf-page-sim">
+        <div class="watermark" id="wmText2">María Camila · mc@gmail.com</div>
+        <div class="pdf-content">
+          <div class="pdf-header-sim">
+            <h2>DÍA 1 — TREN INFERIOR</h2>
+            <p>Glúteos con Forma · Hipdips · Elevación · Equilibrio · Lunes</p>
+          </div>
+          <div class="pdf-body">
+            <h3>💪 EJERCICIOS DEL DÍA</h3>
+            <p>El tren inferior representa el 60% de la masa muscular total. Entrenar piernas y glúteos acelera el metabolismo basal y maximiza la quema de grasa.</p>
+
+            <div class="pdf-exercise">
+              <div class="pdf-exercise-name">01 — Prensa de Piernas (Leg Press)</div>
+              <div class="pdf-exercise-meta">3 series × 12 reps · Descanso: 60 seg</div>
+              <p>Pies en la parte alta de la plataforma. Baja solo hasta 90° en rodilla. Activa glúteo mayor, cuádriceps y femorales de forma segura.</p>
+            </div>
+
+            <div class="pdf-exercise">
+              <div class="pdf-exercise-name">02 — Abducción de Cadera en Máquina</div>
+              <div class="pdf-exercise-meta">4 series × 15 reps · Descanso: 45 seg</div>
+              <p>Ejercicio #1 para hipdips. Trabaja directamente el glúteo medio y menor que rellenan el lateral de la cadera.</p>
+            </div>
+
+            <div class="pdf-exercise">
+              <div class="pdf-exercise-name">03 — Peso Muerto Rumano (RDL)</div>
+              <div class="pdf-exercise-meta">3 series × 12 reps · Descanso: 60 seg</div>
+              <p>Da volumen en la parte inferior del glúteo mayor, corrigiendo la forma cuadrada. Espalda siempre recta.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; color:var(--text); font-size:0.8rem; padding:20px;">
+        ⚠ Este es un visor de demostración. En la versión completa se muestra el PDF real con todas las páginas e imágenes.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ADMIN ═══════════════ -->
+<div class="page" id="page-admin">
+  <div class="admin-page">
+    <div class="admin-header">
+      <div class="admin-title">Panel de Administración</div>
+      <div class="admin-sub">FitAccess Pro · Gestión completa del gimnasio</div>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('overview')">Resumen</button>
+      <button class="admin-tab" onclick="switchTab('users')">Usuarios</button>
+      <button class="admin-tab" onclick="switchTab('guides')">Guías</button>
+      <button class="admin-tab" onclick="switchTab('upload')">Subir guía</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="admin-panel active" id="tab-overview">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-num">47</div>
+          <div class="stat-card-label">Usuarios activos</div>
+          <div class="stat-card-change">↑ +5 este mes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num">12</div>
+          <div class="stat-card-label">Guías publicadas</div>
+          <div class="stat-card-change">↑ +2 esta semana</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num">$6.2M</div>
+          <div class="stat-card-label">Ingresos del mes</div>
+          <div class="stat-card-change">↑ +18% vs mes anterior</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-num">89%</div>
+          <div class="stat-card-label">Tasa de renovación</div>
+          <div class="stat-card-change">↑ Excelente retención</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:24px;">
+        <div class="progress-title" style="margin-bottom:16px;">📊 ACTIVIDAD RECIENTE</div>
+        <table class="admin-table">
+          <thead><tr><th>Usuario</th><th>Acción</th><th>Guía</th><th>Hora</th></tr></thead>
+          <tbody>
+            <tr><td>María C.</td><td>Leyó guía</td><td>Día 1 — Tren Inferior</td><td>Hace 5 min</td></tr>
+            <tr><td>Luisa M.</td><td>Renovó membresía</td><td>Plan PRO</td><td>Hace 1h</td></tr>
+            <tr><td>Andrea P.</td><td>Nuevo registro</td><td>—</td><td>Hace 2h</td></tr>
+            <tr><td>Carolina R.</td><td>Leyó guía</td><td>Calentamiento</td><td>Hace 3h</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="admin-panel" id="tab-users">
+      <table class="admin-table">
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado</th><th>Vence</th></tr></thead>
+        <tbody>
+          <tr><td>María Camila</td><td>mc@gmail.com</td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>30 Jun 2025</td></tr>
+          <tr><td>Luisa Martínez</td><td>luisa@gmail.com</td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>15 Jul 2025</td></tr>
+          <tr><td>Andrea Pérez</td><td>andrea@gmail.com</td><td><span class="badge basic">BÁSICO</span></td><td><span class="badge active">Activo</span></td><td>1 Jul 2025</td></tr>
+          <tr><td>Carolina Ríos</td><td>caro@gmail.com</td><td><span class="badge basic">BÁSICO</span></td><td><span class="badge inactive">Vencido</span></td><td>1 Jun 2025</td></tr>
+          <tr><td>Valentina S.</td><td>vale@gmail.com</td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>20 Jul 2025</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- GUIDES -->
+    <div class="admin-panel" id="tab-guides">
+      <table class="admin-table">
+        <thead><tr><th>Guía</th><th>Plan requerido</th><th>Lecturas</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Calentamiento Científico</td><td><span class="badge basic">BÁSICO+</span></td><td>142</td><td><span class="badge active">Publicada</span></td></tr>
+          <tr><td>Día 1 — Tren Inferior</td><td><span class="badge basic">BÁSICO+</span></td><td>118</td><td><span class="badge active">Publicada</span></td></tr>
+          <tr><td>Día 2 — Tren Superior A</td><td><span class="badge basic">BÁSICO+</span></td><td>97</td><td><span class="badge active">Publicada</span></td></tr>
+          <tr><td>Día 3 — Cardio + Core</td><td><span class="badge basic">BÁSICO+</span></td><td>88</td><td><span class="badge active">Publicada</span></td></tr>
+          <tr><td>Guía de Alimentación</td><td><span class="badge pro">PRO+</span></td><td>64</td><td><span class="badge active">Publicada</span></td></tr>
+          <tr><td>Guía de Recuperación</td><td><span class="badge pro">PRO+</span></td><td>51</td><td><span class="badge active">Publicada</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="admin-panel" id="tab-upload">
+      <div class="upload-zone" onclick="showToast('En la versión real puedes arrastrar y soltar tu PDF aquí 📎')">
+        <div class="upload-icon">📎</div>
+        <div class="upload-text">
+          <strong>Arrastra tu PDF aquí</strong> o haz clic para seleccionar<br>
+          <span style="font-size:0.8rem; color:var(--text)">PDF · máximo 50MB</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Título de la guía</label>
+          <input class="form-input" type="text" placeholder="Ej: Día 5 — Tren Superior B">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select class="form-select">
+            <option>Entrenamiento</option>
+            <option>Nutrición</option>
+            <option>Recuperación</option>
+            <option>Calentamiento</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Plan mínimo requerido</label>
+          <select class="form-select">
+            <option>Básico</option>
+            <option>Pro</option>
+            <option>Gym</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Asignar a usuario específico</label>
+          <select class="form-select">
+            <option>Todos los usuarios del plan</option>
+            <option>María Camila</option>
+            <option>Luisa Martínez</option>
+            <option>Andrea Pérez</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="showToast('✅ Guía publicada exitosamente')">Publicar guía</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>🔒 Contenido Premium</h3>
+    <p>Esta guía está disponible en el plan <strong style="color:var(--gold)">PRO</strong>. Actualiza tu membresía para acceder a guías de nutrición, recuperación y contenido exclusivo.</p>
+    <div class="modal-btns">
+      <button class="btn-primary" style="flex:1" onclick="closeModal(); showToast('🚀 Redirigiendo a planes de pago...')">Ver planes</button>
+      <button class="btn-secondary" style="flex:1" onclick="closeModal()">Ahora no</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── State ───
+let currentUser = null;
+
+// ─── Navigation ───
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0,0);
+
+  // Nav state
+  const navGuest = document.getElementById('navGuest');
+  const navUser = document.getElementById('navUser');
+  if (currentUser) {
+    navGuest.style.display = 'none';
+    navUser.style.display = 'flex';
+  } else {
+    navGuest.style.display = 'flex';
+    navUser.style.display = 'none';
+  }
+}
+
+// ─── Auth ───
+function doLogin() {
+  const email = document.getElementById('loginEmail').value || 'mc@gmail.com';
+  const name = email.split('@')[0];
+  currentUser = { name: 'María Camila', email, initials: 'MC' };
+  document.getElementById('dashName').textContent = 'María Camila';
+  showToast('✅ Bienvenida de nuevo, María Camila');
+  showPage('dashboard');
+}
+
+function doRegister() {
+  const name = document.getElementById('regName').value || 'Usuario';
+  const email = document.getElementById('regEmail').value || 'usuario@gym.com';
+  const initials = name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+  currentUser = { name, email, initials };
+  document.getElementById('dashName').textContent = name;
+  document.querySelector('.avatar').textContent = initials;
+  showToast('🎉 Cuenta creada exitosamente · Bienvenida a FitAccess');
+  showPage('dashboard');
+}
+
+// ─── Viewer ───
+const guideData = {
+  calentamiento: { title: 'Calentamiento Científico', sub: 'Activación Neuromuscular · Movilidad · Todos los días' },
+  dia1: { title: 'Día 1 — Tren Inferior', sub: 'Glúteos · Hipdips · Elevación · Lunes' },
+  dia2: { title: 'Día 2 — Tren Superior A', sub: 'Espalda · Joroba · Bíceps · Martes' },
+  dia3: { title: 'Día 3 — Cardio + Core', sub: 'Caminadora · McGill · Equilibrio · Miércoles' },
+};
+
+function showViewer(id) {
+  const g = guideData[id] || guideData.calentamiento;
+  document.getElementById('viewerTitle').textContent = g.title;
+  document.getElementById('viewerSub').textContent = g.sub;
+  const wm = currentUser ? `${currentUser.name} · ${currentUser.email}` : 'FitAccess Demo';
+  document.querySelectorAll('[id^="wmText"]').forEach(el => el.textContent = wm);
+  showPage('viewer');
+}
+
+// ─── Admin tabs ───
+function switchTab(id) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// ─── Modal ───
+function showModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
+
+// ─── Toast ───
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ─── Prevent right click on viewer ───
+document.getElementById('page-viewer').addEventListener('contextmenu', e => {
+  e.preventDefault();
+  showToast('🔒 Este contenido está protegido');
+});
+
+// ─── Enter key on login ───
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('page-login').classList.contains('active')) doLogin();
+    if (document.getElementById('page-register').classList.contains('active')) doRegister();
+  }
+});
+</script>
+</body>
+</html>
