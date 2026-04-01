@@ -1264,6 +1264,12 @@ function closeModal() { document.getElementById('modal').classList.remove('open'
 document.getElementById('modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
 
 // ─── Toast ───
+  function toggleMobileMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenu').classList.remove('open');
+}
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
