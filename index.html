@@ -1470,4 +1470,37 @@ function switchTab(id) {
 
 // ─── Modal ───
 function showModal() { document.getElementById('modal').classList.add('open'); }
-function closeMod
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
+
+// ─── Toast ───
+function toggleMobileMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+function closeMobileMenu() {
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ─── Prevent right click on viewer ───
+document.getElementById('page-viewer').addEventListener('contextmenu', e => {
+  e.preventDefault();
+  showToast('🔒 Este contenido está protegido');
+});
+
+// ─── Enter key on login ───
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('page-login').classList.contains('active')) doLogin();
+    if (document.getElementById('page-register').classList.contains('active')) doRegister();
+  }
+});
+</script>
+</body>
+</html>
