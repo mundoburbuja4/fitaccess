@@ -112,6 +112,37 @@ nav {
   background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,168,76,0.07) 0%, transparent 70%),
               radial-gradient(ellipse 40% 40% at 20% 80%, rgba(26,58,42,0.3) 0%, transparent 60%);
 }
+.hero-graphic {
+  position:absolute; inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.hero-graphic svg {
+  position:absolute;
+  top:50%; left:50%;
+  transform: translate(-50%, -50%);
+  width: min(900px, 110vw);
+  opacity:0.13;
+}
+.hero-line-left {
+  position:absolute;
+  left:48px; top:50%;
+  transform:translateY(-50%);
+  width:1px; height:180px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  display:none;
+}
+.hero-line-right {
+  position:absolute;
+  right:48px; top:50%;
+  transform:translateY(-50%);
+  width:1px; height:180px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  display:none;
+}
+@media (min-width:900px) {
+  .hero-line-left, .hero-line-right { display:block; }
+}
 .hero-badge {
   display:inline-block;
   padding: 6px 18px;
@@ -651,6 +682,107 @@ footer {
   font-size:0.8rem;
 }
 footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1.1rem; margin-bottom:8px; }
+
+/* ─── MOBILE NAV ─── */
+.nav-hamburger {
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+  padding:8px;
+  background:none;
+  border:none;
+}
+.nav-hamburger span {
+  display:block; width:22px; height:1.5px;
+  background:var(--gold); border-radius:2px;
+  transition:all 0.3s;
+}
+.nav-mobile-menu {
+  display:none;
+  position:fixed;
+  top:64px; left:0; right:0;
+  background:rgba(13,10,7,0.98);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:20px 24px;
+  flex-direction:column;
+  gap:10px;
+  z-index:99;
+}
+.nav-mobile-menu.open { display:flex; }
+.nav-mobile-menu .nav-btn { width:100%; text-align:center; padding:14px; font-size:0.9rem; }
+
+@media (max-width:640px) {
+  .nav-hamburger { display:flex; }
+  .nav-links { display:none !important; }
+  nav { padding:0 20px; }
+  .hero { padding:100px 24px 60px; }
+  .stats { margin:0 16px; gap:32px; }
+  .features { padding:60px 20px; }
+  .pricing { padding:60px 20px; }
+  .dashboard { padding:88px 20px 60px; }
+  .form-row { grid-template-columns:1fr; }
+  .admin-page { padding:88px 20px 60px; }
+  .viewer-header { padding:16px 20px; }
+  .pdf-content { padding:24px; }
+  .pdf-header-sim { margin:-24px -24px 28px; padding:24px; }
+}
+
+/* ─── GUIDE CARD THUMBNAILS ─── */
+.guide-thumb {
+  height:140px;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+  overflow:hidden;
+  font-size:unset;
+}
+.guide-thumb.green { background: linear-gradient(135deg, #091a10 0%, #1A3A2A 100%); }
+.guide-thumb.dark  { background: linear-gradient(135deg, #110610 0%, #2a1020 100%); }
+.guide-thumb.blue  { background: linear-gradient(135deg, #060d18 0%, #0f2038 100%); }
+.guide-thumb.amber { background: linear-gradient(135deg, #160e04 0%, #2d1f08 100%); }
+
+.guide-thumb-inner {
+  position:relative; z-index:2;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:4px;
+}
+.guide-thumb-num {
+  font-family:'Cormorant Garamond', serif;
+  font-size:3.8rem;
+  font-weight:300;
+  color:var(--gold);
+  line-height:1;
+  opacity:0.9;
+}
+.guide-thumb-label {
+  font-family:'Cinzel', serif;
+  font-size:0.55rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--gold-dim);
+}
+.guide-thumb-bg {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel', serif;
+  font-size:7rem;
+  font-weight:700;
+  color:var(--gold);
+  opacity:0.05;
+  user-select:none;
+  pointer-events:none;
+  letter-spacing:-0.05em;
+}
+.guide-thumb-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.07) 1px, transparent 1px);
+  background-size:20px 20px;
+  pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -663,15 +795,51 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
     <button class="nav-btn gold" onclick="showPage('register')">Registrarse</button>
   </div>
   <div class="nav-links" id="navUser" style="display:none">
-    <button class="nav-btn outline" onclick="showPage('admin')">⚙ Admin</button>
+    <button class="nav-btn outline" onclick="showPage('admin')">Admin</button>
     <div class="avatar" onclick="showPage('dashboard')" title="Mi perfil">MC</div>
   </div>
+  <button class="nav-hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="nav-mobile-menu" id="mobileMenu">
+  <button class="nav-btn outline" onclick="showPage('login'); closeMobileMenu()">Iniciar sesión</button>
+  <button class="nav-btn gold" onclick="showPage('register'); closeMobileMenu()">Registrarse</button>
+</div>
 
 <!-- ═══════════════ LANDING ═══════════════ -->
 <div class="page active" id="page-landing">
   <section class="hero">
     <div class="hero-bg"></div>
+    <div class="hero-graphic">
+      <svg viewBox="0 0 900 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- outer ring -->
+        <circle cx="450" cy="300" r="260" stroke="#C9A84C" stroke-width="0.8"/>
+        <!-- inner ring -->
+        <circle cx="450" cy="300" r="200" stroke="#C9A84C" stroke-width="0.4"/>
+        <!-- crosshair lines -->
+        <line x1="450" y1="40" x2="450" y2="560" stroke="#C9A84C" stroke-width="0.5"/>
+        <line x1="190" y1="300" x2="710" y2="300" stroke="#C9A84C" stroke-width="0.5"/>
+        <!-- diagonal accents -->
+        <line x1="266" y1="116" x2="634" y2="484" stroke="#C9A84C" stroke-width="0.3" stroke-dasharray="4 8"/>
+        <line x1="634" y1="116" x2="266" y2="484" stroke="#C9A84C" stroke-width="0.3" stroke-dasharray="4 8"/>
+        <!-- corner marks -->
+        <polyline points="80,80 80,120 120,120" stroke="#C9A84C" stroke-width="1"/>
+        <polyline points="820,80 820,120 780,120" stroke="#C9A84C" stroke-width="1"/>
+        <polyline points="80,520 80,480 120,480" stroke="#C9A84C" stroke-width="1"/>
+        <polyline points="820,520 820,480 780,480" stroke="#C9A84C" stroke-width="1"/>
+        <!-- tick marks on outer circle -->
+        <line x1="450" y1="40" x2="450" y2="52" stroke="#C9A84C" stroke-width="1.5"/>
+        <line x1="450" y1="548" x2="450" y2="560" stroke="#C9A84C" stroke-width="1.5"/>
+        <line x1="190" y1="300" x2="202" y2="300" stroke="#C9A84C" stroke-width="1.5"/>
+        <line x1="698" y1="300" x2="710" y2="300" stroke="#C9A84C" stroke-width="1.5"/>
+        <!-- small center dot -->
+        <circle cx="450" cy="300" r="4" fill="#C9A84C" opacity="0.6"/>
+        <circle cx="450" cy="300" r="12" stroke="#C9A84C" stroke-width="0.5"/>
+      </svg>
+    </div>
+    <div class="hero-line-left"></div>
+    <div class="hero-line-right"></div>
     <div class="hero-badge">Plataforma de Entrenamiento Premium</div>
     <h1>Tu gym, <em>tus guías,</em><br>un solo lugar</h1>
     <p>Guías de entrenamiento personalizadas, basadas en ciencia, accesibles con tu membresía activa. Protegidas, organizadas y siempre disponibles.</p>
@@ -685,7 +853,7 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
     <div class="stat"><span class="stat-num">48</span><div class="stat-label">Páginas por guía</div></div>
     <div class="stat"><span class="stat-num">5</span><div class="stat-label">Días de rutina</div></div>
     <div class="stat"><span class="stat-num">100%</span><div class="stat-label">Personalizado</div></div>
-    <div class="stat"><span class="stat-num">🔒</span><div class="stat-label">Contenido protegido</div></div>
+    <div class="stat"><span class="stat-num" style="font-size:1.6rem; letter-spacing:0.05em">Seguro</span><div class="stat-label">Contenido protegido</div></div>
   </div>
 
   <section class="features">
@@ -693,32 +861,32 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
     <p class="section-sub">Una plataforma completa para gestionar y distribuir contenido de entrenamiento</p>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">📋</div>
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
         <h3>Guías Personalizadas</h3>
         <p>Cada cliente recibe su guía adaptada a su cuerpo, objetivos y limitaciones físicas. Nada genérico.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <h3>Acceso por Membresía</h3>
         <p>El contenido se desbloquea con membresía activa y se bloquea automáticamente al vencer. Sin complicaciones.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">💧</div>
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <h3>Marca de Agua Dinámica</h3>
         <p>Cada PDF muestra el nombre del usuario. Si alguien comparte capturas, queda expuesto automáticamente.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
         <h3>Panel de Administración</h3>
         <p>Gestiona usuarios, sube guías, controla membresías y visualiza métricas desde un solo lugar.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📱</div>
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg></div>
         <h3>Acceso desde Cualquier Dispositivo</h3>
         <p>Tus clientes ven sus guías desde el celular, tablet o computador. Sin apps que descargar.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">⚡</div>
+        <div class="feature-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><polyline points="13 2 13 9 20 9"/><polygon points="22 12 13 2 2 12"/><path d="M4 22V12"/><path d="M20 22V12"/><path d="M4 22h16"/><circle cx="12" cy="17" r="2"/></svg></div>
         <h3>Pagos Automáticos</h3>
         <p>Integración con pasarelas de pago colombianas. El sistema gestiona renovaciones y vencimientos solo.</p>
       </div>
@@ -851,7 +1019,7 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
 
     <!-- Progress -->
     <div class="progress-section">
-      <div class="progress-title">🎯 TU PROGRESO ESTA SEMANA</div>
+      <div class="progress-title">TU PROGRESO ESTA SEMANA</div>
       <div class="progress-item">
         <div class="progress-label"><span>Días completados</span><span>3/5</span></div>
         <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
@@ -871,7 +1039,14 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
       <div class="guides-title">📂 Mis Guías Desbloqueadas</div>
       <div class="guides-grid">
         <div class="guide-card" onclick="showViewer('calentamiento')">
-          <div class="guide-thumb green">🔥</div>
+          <div class="guide-thumb green">
+            <div class="guide-thumb-grid"></div>
+            <div class="guide-thumb-bg">CAL</div>
+            <div class="guide-thumb-inner">
+              <div class="guide-thumb-num">00</div>
+              <div class="guide-thumb-label">Calentamiento</div>
+            </div>
+          </div>
           <div class="guide-body">
             <div class="guide-tag">Todos los días</div>
             <div class="guide-title">Calentamiento Científico</div>
@@ -882,7 +1057,14 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
           </div>
         </div>
         <div class="guide-card" onclick="showViewer('dia1')">
-          <div class="guide-thumb green">💪</div>
+          <div class="guide-thumb green">
+            <div class="guide-thumb-grid"></div>
+            <div class="guide-thumb-bg">I</div>
+            <div class="guide-thumb-inner">
+              <div class="guide-thumb-num">01</div>
+              <div class="guide-thumb-label">Tren Inferior</div>
+            </div>
+          </div>
           <div class="guide-body">
             <div class="guide-tag">Lunes</div>
             <div class="guide-title">Día 1 — Tren Inferior</div>
@@ -893,7 +1075,14 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
           </div>
         </div>
         <div class="guide-card" onclick="showViewer('dia2')">
-          <div class="guide-thumb dark">🏋️</div>
+          <div class="guide-thumb dark">
+            <div class="guide-thumb-grid"></div>
+            <div class="guide-thumb-bg">II</div>
+            <div class="guide-thumb-inner">
+              <div class="guide-thumb-num">02</div>
+              <div class="guide-thumb-label">Tren Superior A</div>
+            </div>
+          </div>
           <div class="guide-body">
             <div class="guide-tag">Martes</div>
             <div class="guide-title">Día 2 — Tren Superior A</div>
@@ -904,7 +1093,14 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
           </div>
         </div>
         <div class="guide-card" onclick="showViewer('dia3')">
-          <div class="guide-thumb blue">🚴</div>
+          <div class="guide-thumb blue">
+            <div class="guide-thumb-grid"></div>
+            <div class="guide-thumb-bg">III</div>
+            <div class="guide-thumb-inner">
+              <div class="guide-thumb-num">03</div>
+              <div class="guide-thumb-label">Cardio + Core</div>
+            </div>
+          </div>
           <div class="guide-body">
             <div class="guide-tag">Miércoles</div>
             <div class="guide-title">Día 3 — Cardio + Core</div>
@@ -923,8 +1119,15 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
       <div class="guides-grid">
         <div class="guide-card locked">
           <div class="guide-thumb green">
-            <div class="lock-overlay">🔒</div>
-            🥗
+            <div class="guide-thumb-grid"></div>
+            <div class="guide-thumb-bg">NUT</div>
+            <div class="guide-thumb-inner">
+              <div class="guide-thumb-num" style="opacity:0.4">04</div>
+              <div class="guide-thumb-label" style="opacity:0.4">Nutrición</div>
+            </div>
+            <div class="lock-overlay">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity="0.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
           </div>
           <div class="guide-body">
             <div class="guide-tag">Nutrición</div>
@@ -937,8 +1140,15 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
         </div>
         <div class="guide-card locked">
           <div class="guide-thumb dark">
-            <div class="lock-overlay">🔒</div>
-            💆
+            <div class="guide-thumb-grid"></div>
+            <div class="guide-thumb-bg">REC</div>
+            <div class="guide-thumb-inner">
+              <div class="guide-thumb-num" style="opacity:0.4">05</div>
+              <div class="guide-thumb-label" style="opacity:0.4">Recuperación</div>
+            </div>
+            <div class="lock-overlay">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity="0.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
           </div>
           <div class="guide-body">
             <div class="guide-tag">Recuperación</div>
@@ -971,7 +1181,7 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
     <div class="pdf-container">
       <!-- Simulated PDF page 1 -->
       <div class="pdf-page-sim">
-        <div class="watermark" id="wmText">María Camila · mc@gmail.com</div>
+        <div class="watermark" id="wmText">María Camila · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f19c92b1969c90989ddf929e9c">[email&#160;protected]</a></div>
         <div class="pdf-content">
           <div class="pdf-header-sim">
             <h2>GUÍA DE ENTRENAMIENTO PERSONALIZADA</h2>
@@ -1004,7 +1214,7 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
 
       <!-- Page 2 -->
       <div class="pdf-page-sim">
-        <div class="watermark" id="wmText2">María Camila · mc@gmail.com</div>
+        <div class="watermark" id="wmText2">María Camila · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4a27290a2d272b232664292527">[email&#160;protected]</a></div>
         <div class="pdf-content">
           <div class="pdf-header-sim">
             <h2>DÍA 1 — TREN INFERIOR</h2>
@@ -1101,11 +1311,11 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
       <table class="admin-table">
         <thead><tr><th>Nombre</th><th>Correo</th><th>Plan</th><th>Estado</th><th>Vence</th></tr></thead>
         <tbody>
-          <tr><td>María Camila</td><td>mc@gmail.com</td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>30 Jun 2025</td></tr>
-          <tr><td>Luisa Martínez</td><td>luisa@gmail.com</td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>15 Jul 2025</td></tr>
-          <tr><td>Andrea Pérez</td><td>andrea@gmail.com</td><td><span class="badge basic">BÁSICO</span></td><td><span class="badge active">Activo</span></td><td>1 Jul 2025</td></tr>
-          <tr><td>Carolina Ríos</td><td>caro@gmail.com</td><td><span class="badge basic">BÁSICO</span></td><td><span class="badge inactive">Vencido</span></td><td>1 Jun 2025</td></tr>
-          <tr><td>Valentina S.</td><td>vale@gmail.com</td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>20 Jul 2025</td></tr>
+          <tr><td>María Camila</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="94f9f7d4f3f9f5fdf8baf7fbf9">[email&#160;protected]</a></td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>30 Jun 2025</td></tr>
+          <tr><td>Luisa Martínez</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="315d4458425071565c50585d1f525e5c">[email&#160;protected]</a></td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>15 Jul 2025</td></tr>
+          <tr><td>Andrea Pérez</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bddcd3d9cfd8dcfddad0dcd4d193ded2d0">[email&#160;protected]</a></td><td><span class="badge basic">BÁSICO</span></td><td><span class="badge active">Activo</span></td><td>1 Jul 2025</td></tr>
+          <tr><td>Carolina Ríos</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="254644574a654248444c490b464a48">[email&#160;protected]</a></td><td><span class="badge basic">BÁSICO</span></td><td><span class="badge inactive">Vencido</span></td><td>1 Jun 2025</td></tr>
+          <tr><td>Valentina S.</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b8ced9d4ddf8dfd5d9d1d496dbd7d5">[email&#160;protected]</a></td><td><span class="badge pro">PRO</span></td><td><span class="badge active">Activo</span></td><td>20 Jul 2025</td></tr>
         </tbody>
       </table>
     </div>
@@ -1190,7 +1400,7 @@ footer .footer-logo { font-family:'Cinzel',serif; color:var(--gold); font-size:1
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ─── State ───
 let currentUser = null;
 
@@ -1260,30 +1470,4 @@ function switchTab(id) {
 
 // ─── Modal ───
 function showModal() { document.getElementById('modal').classList.add('open'); }
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-document.getElementById('modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
-
-// ─── Toast ───
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
-}
-
-// ─── Prevent right click on viewer ───
-document.getElementById('page-viewer').addEventListener('contextmenu', e => {
-  e.preventDefault();
-  showToast('🔒 Este contenido está protegido');
-});
-
-// ─── Enter key on login ───
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('page-login').classList.contains('active')) doLogin();
-    if (document.getElementById('page-register').classList.contains('active')) doRegister();
-  }
-});
-</script>
-</body>
-</html>
+function closeMod
